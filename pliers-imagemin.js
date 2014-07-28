@@ -5,7 +5,7 @@ var async = require('async')
   , Imagemin = require('imagemin')
   , prettyBytes = require('pretty-bytes');
 
-module.exports = function (pliers, dirname, images) {
+module.exports = function (pliers, images) {
   pliers('imagemin', function (done) {
     var totalBytes = 0
       , totalSavedBytes = 0
@@ -50,7 +50,9 @@ module.exports = function (pliers, dirname, images) {
         totalSavedBytes += saved
         totalFiles++
 
-        pliers.logger.info(chalk.green('✔ ') + path.relative(dirname, image) + chalk.gray(' (' + msg + ')'))
+        // Provide verbose flag
+
+        pliers.logger.info(chalk.green('✔ ') + path.relative(pliers.cwd, image) + chalk.gray(' (' + msg + ')'))
 
         cb()
       })

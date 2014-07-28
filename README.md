@@ -1,6 +1,6 @@
 # pliers-imagemin
 
-Minifies GIFs, JPGs, PNGs, and SVGs.
+Minify GIFs, JPGs, PNGs, and SVGs.
 
 ## Installation
 

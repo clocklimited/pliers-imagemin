@@ -1,0 +1,35 @@
+{
+  "author": "Ben Edwards <hello@benedfit.com>",
+  "name": "pliers-imagemin",
+  "description": "Minify GIFs, JPGs, PNGs, and SVGs.",
+  "version": "0.0.1",
+  "tags": [
+    "pliers",
+    "minification",
+    "optimisation"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:benedfit/pliers-imagemin"
+  },
+  "publishConfig": {
+    "registry": "http://registry.npmjs.org"
+  },
+  "main": "./pliers-imagemin",
+  "scripts": {
+    "lint": "./node_modules/.bin/jshint . --reporter=./node_modules/jshint-full-path/index.js"
+  },
+  "engines": {
+    "node": ">=0.10"
+  },
+  "dependencies": {
+    "async": "^0.9.0",
+    "chalk": "^0.5.1",
+    "imagemin": "^0.4.6",
+    "path": "^0.4.9",
+    "pretty-bytes": "^0.1.2"
+  },
+  "devDependencies": {
+    "jshint-full-path": "~1.1.1"
+  }
+}

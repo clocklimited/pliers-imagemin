@@ -8,7 +8,7 @@ Minify GIFs, JPGs, PNGs, and SVGs.
 
 ## Usage
 
-This will expose a new pliers task called `imagemin`.
+This will expose a new pliers task.
 
 ```js
 // within a pliers.js

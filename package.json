@@ -2,7 +2,7 @@
   "author": "Ben Edwards <hello@benedfit.com>",
   "name": "pliers-imagemin",
   "description": "Minify GIFs, JPGs, PNGs, and SVGs.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "tags": [
     "pliers",
     "minification",
@@ -10,7 +10,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:benedfit/pliers-imagemin"
+    "url": "git@github.com:plierjs/pliers-imagemin"
   },
   "publishConfig": {
     "registry": "http://registry.npmjs.org"

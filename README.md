@@ -1,4 +1,4 @@
-# [pliers](http://pliersjs.github.io/)-imagemin
+# [pliers](https://pliersjs.github.io/)-imagemin
 
 Minify GIFs, JPGs, PNGs, and SVGs.
 

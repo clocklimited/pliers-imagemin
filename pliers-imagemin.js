@@ -20,7 +20,8 @@ module.exports = function (pliers, images) {
 
       msg = 'Minified ' + totalFiles + ' '
       msg += totalFiles === 1 ? 'image' : 'images'
-      msg += chalk.gray(' (saved ' + prettyBytes(totalSavedBytes) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%)')
+      msg += chalk.gray(' (saved ' + prettyBytes(totalSavedBytes) + ' - ' +
+        percent.toFixed(1).replace(/\.0$/, '') + '%)')
 
       pliers.logger.info(msg)
 

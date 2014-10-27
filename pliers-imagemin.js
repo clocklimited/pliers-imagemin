@@ -32,10 +32,10 @@ module.exports = function (pliers, images) {
       var imagemin = new Imagemin()
           .src(image)
           .dest(image)
-          .use(Imagemin.gifsicle({interlaced: true}))
-          .use(Imagemin.jpegtran({progressive: true}))
-          .use(Imagemin.optipng({optimizationLevel: 7}))
-          .use(Imagemin.svgo({plugins: []}))
+          .use(Imagemin.gifsicle({ interlaced: true }))
+          .use(Imagemin.jpegtran({ progressive: true }))
+          .use(Imagemin.optipng({ optimizationLevel: 7 }))
+          .use(Imagemin.svgo({ plugins: [] }))
         , originalSize = fs.statSync(image).size
 
       imagemin.optimize(function (err, data) {

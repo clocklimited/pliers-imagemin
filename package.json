@@ -31,9 +31,11 @@
     "pretty-bytes": "^0.1.2"
   },
   "devDependencies": {
+    "directory-copy": "^0.1.0",
     "jshint": "^2.5.5",
     "mocha": "^1.21.4",
     "pliers": "^1.0.2",
+    "rimraf": "^2.2.8",
     "should": "^4.0.4"
   }
 }

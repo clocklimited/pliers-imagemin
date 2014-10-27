@@ -14,7 +14,9 @@ This will expose a new pliers task.
 // within a pliers.js
 module.exports = function (pliers) {
 
-  require('pliers-imagemin')(pliers)
+  pliers.filesets('images', join(__dirname, ..., '**/*.{gif,jpg,png,svg}')
+
+  require('pliers-imagemin')(pliers, pliers.filesets.images)
 
 }
 ```

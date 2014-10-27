@@ -2,7 +2,7 @@
   "author": "Ben Edwards <hello@benedfit.com>",
   "name": "pliers-imagemin",
   "description": "Minify GIFs, JPGs, PNGs, and SVGs.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "tags": [
     "pliers",
     "minification",
@@ -17,7 +17,8 @@
   },
   "main": "./pliers-imagemin",
   "scripts": {
-    "lint": "./node_modules/.bin/jshint . --reporter=./node_modules/jshint-full-path/index.js"
+    "test": "npm run lint && mocha -r should test",
+    "lint": "jshint ."
   },
   "engines": {
     "node": ">=0.10"
@@ -30,6 +31,9 @@
     "pretty-bytes": "^0.1.2"
   },
   "devDependencies": {
-    "jshint-full-path": "~1.1.1"
+    "jshint": "^2.5.5",
+    "mocha": "^1.21.4",
+    "pliers": "^1.0.2",
+    "should": "^4.0.4"
   }
 }

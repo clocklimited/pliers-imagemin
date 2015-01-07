@@ -2,6 +2,8 @@
 
 Minify GIFs, JPGs, PNGs, and SVGs.
 
+[![build status](https://secure.travis-ci.org/pliersjs/pliers-imagemin.png)](http://travis-ci.org/pliersjs/pliers-imagemin)
+
 ## Installation
 
       npm install pliers-imagemin

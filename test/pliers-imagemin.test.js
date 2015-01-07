@@ -1,6 +1,6 @@
 var join = require('path').join
   , assert = require('assert')
-  , createPliers = require('pliers').bind(null, { logLevel: 'error' })
+  , createPliers = require('pliers').bind(null, { logLevel: 'fatal' })
   , pliersImagemin = require('..')
   , rmdir = require('rimraf')
   , mkdir = require('mkdirp')
@@ -104,14 +104,17 @@ describe('pliers imagemin', function () {
     })
   })
 
-  it.skip('should output error on corrupt image', function (done) {
+  it('should ignore a corrupt image', function (done) {
     var pliers = createPliers()
       , path = join(tempDir, 'test-corrupt.jpg')
+      , originalSize = fs.statSync(path).size
+      , optimizedSize
     pliers.filesets('images', path)
     pliers('imagemin', pliersImagemin(pliers, pliers.filesets.images))
     pliers.run('imagemin', function (error) {
-      assert(error)
-      assert(error.message.match(/Corrupt JPEG data/g))
+      assert(!error)
+      optimizedSize = fs.statSync(path).size
+      assert.equal(originalSize, optimizedSize)
       done()
     })
   })

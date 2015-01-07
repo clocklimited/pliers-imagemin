@@ -4,7 +4,6 @@ var async = require('async')
   , fs = require('fs')
   , Imagemin = require('imagemin')
   , prettyBytes = require('pretty-bytes')
-  , once = require('once')
 
 module.exports = function (pliers, images) {
 
@@ -22,8 +21,6 @@ module.exports = function (pliers, images) {
       , msg
 
     async.each(images, optimize, function (err) {
-      if (err) return done(err)
-
       percent = totalBytes > 0 ? (totalSavedBytes / totalBytes) * 100 : 0
 
       msg = 'Minified ' + totalFiles + ' '
@@ -31,16 +28,16 @@ module.exports = function (pliers, images) {
       msg += chalk.gray(' (saved ' + prettyBytes(totalSavedBytes) + ' - ' +
         percent.toFixed(1).replace(/\.0$/, '') + '%)')
 
+      if (err) pliers.logger.error('Some images were skipped as they contained errors')
       pliers.logger.info(msg)
 
       done()
     })
 
     function optimize(image, cb) {
-
       var imagemin = new Imagemin()
           .src(image)
-          .dest(path.dirname(image))
+          .dest(image)
           .use(Imagemin.gifsicle({ interlaced: true }))
           .use(Imagemin.jpegtran({ progressive: true }))
           .use(Imagemin.pngquant())
@@ -50,10 +47,7 @@ module.exports = function (pliers, images) {
         , filePath = path.relative(pliers.cwd, image)
         , msg
 
-      cb = once(cb)
-
-      imagemin.run(function (err, data) {
-
+      imagemin.optimize(function (err, data) {
         if (err) {
           msg = err.message.replace(/(\r\n|\n|\r)/gm, ' ')
 
@@ -61,7 +55,7 @@ module.exports = function (pliers, images) {
 
           cb(new Error(msg))
         } else {
-          var optimizedSize = data[0].contents.length
+          var optimizedSize = data.contents.length
             , saved = originalSize - optimizedSize
             , percent = originalSize > 0 ? (saved / originalSize) * 100 : 0
             , savedMsg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
@@ -76,7 +70,6 @@ module.exports = function (pliers, images) {
 
           cb()
         }
-
       })
 
     }

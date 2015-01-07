@@ -6,7 +6,14 @@ var async = require('async')
   , prettyBytes = require('pretty-bytes');
 
 module.exports = function (pliers, images) {
-  pliers('imagemin', function (done) {
+
+  // Check supplied arguments
+  if (!pliers) throw new Error('No pliers argument supplied.')
+  if (!pliers.version) throw new Error('You need pliers >=0.3.4 to use this plugin')
+  if (!images) throw new Error('No images argument supplied.')
+
+  return function (done) {
+
     var totalBytes = 0
       , totalSavedBytes = 0
       , totalFiles = 0

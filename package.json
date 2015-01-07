@@ -1,6 +1,6 @@
 {
   "name": "pliers-imagemin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Minify GIFs, JPGs, PNGs, and SVGs.",
   "author": "Ben Edwards <hello@benedfit.com>",
   "license": "BSD",
@@ -20,7 +20,7 @@
   "scripts": {
     "lint": "jshint .",
     "checkStyle": "jscs .",
-    "pretestSkip": "npm run lint && npm run checkStyle",
+    "pretest": "npm run lint && npm run checkStyle",
     "test": "mocha"
   },
   "engines": {

@@ -17,8 +17,10 @@
   },
   "main": "./pliers-imagemin",
   "scripts": {
-    "test": "npm run lint && mocha -r should test",
-    "lint": "jshint ."
+    "lint": "jshint .",
+    "checkStyle": "jscs .",
+    "pretest": "npm run lint && npm run checkStyle",
+    "test": "mocha -r should test"
   },
   "engines": {
     "node": ">=0.10"
@@ -32,6 +34,7 @@
   },
   "devDependencies": {
     "directory-copy": "^0.1.0",
+    "jscs": "^1.9.0",
     "jshint": "^2.5.5",
     "mocha": "^1.21.4",
     "pliers": "^1.0.2",

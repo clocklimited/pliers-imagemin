@@ -16,11 +16,8 @@ Within a `pliers.js` file:
 
 ```
 module.exports = function (pliers) {
-
   pliers.filesets('images', join(__dirname, ..., '**/*.{gif,jpg,png,svg}')
-
   pliers('imagemin', require('pliers-imagemin')(pliers, pliers.filesets.images))
-
 }
 ```
 

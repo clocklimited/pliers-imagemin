@@ -40,7 +40,7 @@ module.exports = function (pliers, images) {
           .dest(image)
           .use(Imagemin.gifsicle({ interlaced: true }))
           .use(Imagemin.jpegtran({ progressive: true }))
-          .use(Imagemin.pngquant())
+          // .use(Imagemin.pngquant())
           .use(Imagemin.optipng({ optimizationLevel: 7 }))
           .use(Imagemin.svgo())
         , originalSize = fs.statSync(image).size

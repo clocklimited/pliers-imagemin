@@ -3,7 +3,8 @@ var async = require('async')
   , chalk = require('chalk')
   , fs = require('fs')
   , Imagemin = require('imagemin')
-  , prettyBytes = require('pretty-bytes');
+  , prettyBytes = require('pretty-bytes')
+  , once = require('once')
 
 module.exports = function (pliers, images) {
 
@@ -36,34 +37,50 @@ module.exports = function (pliers, images) {
     })
 
     function optimize(image, cb) {
+
       var imagemin = new Imagemin()
           .src(image)
-          .dest(image)
+          .dest(path.dirname(image))
           .use(Imagemin.gifsicle({ interlaced: true }))
           .use(Imagemin.jpegtran({ progressive: true }))
+          .use(Imagemin.pngquant())
           .use(Imagemin.optipng({ optimizationLevel: 7 }))
-          .use(Imagemin.svgo({ plugins: [] }))
+          .use(Imagemin.svgo())
         , originalSize = fs.statSync(image).size
+        , filePath = path.relative(pliers.cwd, image)
+        , msg
 
-      imagemin.optimize(function (err, data) {
-        if (err) return done(err)
+      cb = once(cb)
 
-        var optimizedSize = data.contents.length
-          , saved = originalSize - optimizedSize
-          , percent = originalSize > 0 ? (saved / originalSize) * 100 : 0
-          , savedMsg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
-          , msg = saved > 0 ? savedMsg : 'already optimized'
+      imagemin.run(function (err, data) {
 
-        totalBytes += originalSize
-        totalSavedBytes += saved
-        totalFiles++
+        if (err) {
+          msg = err.message.replace(/(\r\n|\n|\r)/gm, ' ')
 
-        // Provide verbose flag
+          pliers.logger.info(chalk.red('✘ ') + filePath + chalk.gray(' (' + msg + ')'))
 
-        pliers.logger.info(chalk.green('✔ ') + path.relative(pliers.cwd, image) + chalk.gray(' (' + msg + ')'))
+          cb(new Error(msg))
+        } else {
+          var optimizedSize = data[0].contents.length
+            , saved = originalSize - optimizedSize
+            , percent = originalSize > 0 ? (saved / originalSize) * 100 : 0
+            , savedMsg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
 
-        cb()
+          msg = saved > 0 ? savedMsg : 'already optimized'
+          totalBytes += originalSize
+          totalSavedBytes += saved
+          totalFiles++
+
+          // Provide verbose flag
+          pliers.logger.info(chalk.green('✔ ') + filePath + chalk.gray(' (' + msg + ')'))
+
+          cb()
+        }
+
       })
+
     }
-  })
+
+  }
+
 }

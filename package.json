@@ -1,6 +1,6 @@
 {
   "name": "pliers-imagemin",
-  "version": "1.0.3",
+  "version": "1.0.5",
   "description": "Minify GIFs, JPGs, PNGs, and SVGs.",
   "author": "Ben Edwards <hello@benedfit.com>",
   "license": "BSD",

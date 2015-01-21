@@ -20,7 +20,7 @@ module.exports = function (pliers, images) {
       , percent
       , msg
 
-    async.each(images, optimize, function (err) {
+    async.each(images, optimize, function () {
       percent = totalBytes > 0 ? (totalSavedBytes / totalBytes) * 100 : 0
 
       msg = 'Minified ' + totalFiles + ' '
@@ -28,7 +28,6 @@ module.exports = function (pliers, images) {
       msg += chalk.gray(' (saved ' + prettyBytes(totalSavedBytes) + ' - ' +
         percent.toFixed(1).replace(/\.0$/, '') + '%)')
 
-      if (err) pliers.logger.error('Some images were skipped as they contained errors')
       pliers.logger.info(msg)
 
       done()
@@ -40,7 +39,6 @@ module.exports = function (pliers, images) {
           .dest(image)
           .use(Imagemin.gifsicle({ interlaced: true }))
           .use(Imagemin.jpegtran({ progressive: true }))
-          // .use(Imagemin.pngquant())
           .use(Imagemin.optipng({ optimizationLevel: 7 }))
           .use(Imagemin.svgo())
         , originalSize = fs.statSync(image).size
@@ -52,8 +50,6 @@ module.exports = function (pliers, images) {
           msg = err.message.replace(/(\r\n|\n|\r)/gm, ' ')
 
           pliers.logger.info(chalk.red('✘ ') + filePath + chalk.gray(' (' + msg + ')'))
-
-          cb(new Error(msg))
         } else {
           var optimizedSize = data.contents.length
             , saved = originalSize - optimizedSize
@@ -65,11 +61,11 @@ module.exports = function (pliers, images) {
           totalSavedBytes += saved
           totalFiles++
 
-          // Provide verbose flag
           pliers.logger.info(chalk.green('✔ ') + filePath + chalk.gray(' (' + msg + ')'))
-
-          cb()
         }
+
+        cb()
+
       })
 
     }

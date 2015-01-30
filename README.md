@@ -7,7 +7,7 @@ Minify GIFs, JPGs, PNGs, and SVGs.
 ## Installation
 
 ```
-npm install pliers-imagemin --save-dev
+npm install pliers-imagemin --save
 ```
 
 ## Usage

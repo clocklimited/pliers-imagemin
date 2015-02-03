@@ -36,22 +36,22 @@ module.exports = function (pliers, images) {
     function optimize(image, cb) {
       var imagemin = new Imagemin()
           .src(image)
-          .dest(image)
+          .dest(path.dirname(image))
           .use(Imagemin.gifsicle({ interlaced: true }))
           .use(Imagemin.jpegtran({ progressive: true }))
           .use(Imagemin.optipng({ optimizationLevel: 7 }))
-          .use(Imagemin.svgo())
+          .use(Imagemin.svgo({ multipass: true }))
         , originalSize = fs.statSync(image).size
         , filePath = path.relative(pliers.cwd, image)
         , msg
 
-      imagemin.optimize(function (err, data) {
+      imagemin.run(function (err, data) {
         if (err) {
           msg = err.message.replace(/(\r\n|\n|\r)/gm, ' ')
 
           pliers.logger.info(chalk.red('✘ ') + filePath + chalk.gray(' (' + msg + ')'))
         } else {
-          var optimizedSize = data.contents.length
+          var optimizedSize = data[ 0 ].contents.length
             , saved = originalSize - optimizedSize
             , percent = originalSize > 0 ? (saved / originalSize) * 100 : 0
             , savedMsg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'

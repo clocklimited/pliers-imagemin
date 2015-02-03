@@ -72,7 +72,7 @@ describe('pliers imagemin', function () {
     })
   })
 
-  it('should optimize a SVG', function (done) {
+  it('should optimize an SVG', function (done) {
     var pliers = createPliers()
       , path = join(tempDir, 'test.svg')
       , originalSize = fs.statSync(path).size

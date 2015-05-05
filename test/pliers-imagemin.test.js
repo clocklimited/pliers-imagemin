@@ -26,6 +26,22 @@ describe('pliers imagemin', function () {
     rmdir(tempDir, done)
   })
 
+  it('should error if pliers argument is missing', function (done) {
+    var pliers = createPliers()
+    assert.throws(function () {
+      pliers('imagemin', pliersImagemin(null, null))
+    }, /No pliers argument supplied./)
+    done()
+  })
+
+  it('should error if images argument is missing', function (done) {
+    var pliers = createPliers()
+    assert.throws(function () {
+      pliers('imagemin', pliersImagemin(pliers, null))
+    }, /No images argument supplied./)
+    done()
+  })
+
   it('should optimize a GIF', function (done) {
     var pliers = createPliers()
       , path = join(tempDir, 'test.gif')
@@ -82,6 +98,31 @@ describe('pliers imagemin', function () {
     pliers.run('imagemin', function (error) {
       assert(!error)
       optimizedSize = fs.statSync(path).size
+      assert.equal(optimizedSize < originalSize, true)
+      pliers.run('imagemin', function (error) {
+        assert(!error)
+        var multipassSize = fs.statSync(path).size
+        assert.equal(multipassSize === optimizedSize, true)
+        done()
+      })
+    })
+  })
+
+  it('should optimize multiple images', function (done) {
+    var pliers = createPliers()
+      , path = join(tempDir, '*.{gif,png,jpg,svg}')
+      , originalSize = 0
+      , optimizedSize = 0
+    pliers.filesets('images', path)
+    pliers.filesets.images.forEach(function (path) {
+      originalSize += fs.statSync(path).size
+    })
+    pliers('imagemin', pliersImagemin(pliers, pliers.filesets.images))
+    pliers.run('imagemin', function (error) {
+      assert(!error)
+      pliers.filesets.images.forEach(function (path) {
+        optimizedSize += fs.statSync(path).size
+      })
       assert.equal(optimizedSize < originalSize, true)
       done()
     })

@@ -1,0 +1,7 @@
+coverage
+test
+.jscsrc
+.jshintignore
+.jshintrc
+.npmignore
+.travis.yml

@@ -1,7 +1,9 @@
 coverage
+pliers
 test
 .jscsrc
 .jshintignore
 .jshintrc
 .npmignore
 .travis.yml
+pliers.js

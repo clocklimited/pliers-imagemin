@@ -1,6 +1,6 @@
 {
   "name": "pliers-imagemin",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Minify GIFs, JPGs, PNGs, and SVGs.",
   "author": "Ben Edwards <hello@benedfit.com>",
   "license": "BSD",
@@ -31,17 +31,19 @@
   "dependencies": {
     "async": "^0.9.0",
     "chalk": "^0.5.1",
-    "imagemin": "^3.1.0",
+    "imagemin": "3.1.0",
     "pretty-bytes": "^0.1.2"
   },
   "devDependencies": {
     "directory-copy": "^0.1.0",
+    "glob": "^6.0.1",
     "istanbul": "^0.3.10",
     "jscs": "^1.9.0",
     "jshint": "^2.5.5",
     "mkdirp": "^0.5.0",
     "mocha": "^1.21.4",
     "pliers": "^1.0.2",
+    "pliers-clean-shrinkwrap": "^1.0.1",
     "rimraf": "^2.2.8"
   }
 }

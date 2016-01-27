@@ -1,6 +1,8 @@
-var chalk = require('chalk')
+var async = require('async')
+  , chalk = require('chalk')
   , fs = require('fs')
   , Imagemin = require('imagemin')
+  , os = require('os')
   , path = require('path')
   , prettyBytes = require('pretty-bytes')
 
@@ -12,64 +14,73 @@ module.exports = function (pliers, images) {
 
   return function (done) {
 
-    if (!images.length) return done()
-
-    var options =
+    var totalBytes = 0
+      , totalSavedBytes = 0
+      , totalFiles = 0
+      , options =
         { interlaced: true
         , multipass: true
         , optimizationLevel: 7
         , progressive: true
         }
+      , percent
+      , msg
 
-    new Imagemin()
-        .src(images)
-        .use(Imagemin.jpegtran(options))
-        .use(Imagemin.gifsicle(options))
-        .use(Imagemin.optipng(options))
-        .use(Imagemin.svgo(options))
-        .run(function (err, files) {
-          if (err) return done(err)
+    async.eachLimit(images, os.cpus().length, optimize, function () {
+      percent = totalBytes > 0 ? (totalSavedBytes / totalBytes) * 100 : 0
 
-          var totalBytes = 0
-            , totalSavedBytes = 0
-            , totalFiles = files.length
-            , percent
-            , msg
+      msg =
+        [ 'Minified ' + totalFiles
+        , totalFiles === 1 ? 'image' : 'images'
+        , chalk.gray('(saved ' + prettyBytes(totalSavedBytes))
+        , '-'
+        , chalk.gray(percent.toFixed(1).replace(/\.0$/, '') + '%)')
+        ]
 
-          files.forEach(function (file, index) {
-            var original = images[ index ]
-              , originalSize = fs.statSync(original).size
-              , filePath = path.relative(pliers.cwd, original)
-              , optimizedSize = file.contents.length
-              , saved = originalSize - optimizedSize
-              , percent = (saved / originalSize) * 100
-              , savedMsg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
+      pliers.logger.info(msg.join(' '))
 
-            if (saved > 0) {
-              fs.writeFileSync(original, file.contents)
+      done()
+    })
+
+    function optimize(image, next) {
+
+      var originalSize = fs.statSync(image).size
+        , filePath = path.relative(pliers.cwd, image)
+        , msg
+
+      new Imagemin()
+          .src(image)
+          .dest(path.dirname(image))
+          .use(Imagemin.jpegtran(options))
+          .use(Imagemin.gifsicle(options))
+          .use(Imagemin.optipng(options))
+          .use(Imagemin.svgo(options))
+          .run(function (err, files) {
+            if (err) {
+              msg = err.message.replace(/(\r\n|\n|\r)/gm, ' ')
+
+              pliers.logger.info(chalk.red('✘ ') + filePath + chalk.gray(' (' + msg + ')'))
+
+              return next()
+            } else {
+              var file = files[ 0 ]
+                , optimizedSize = file.contents.length
+                , saved = originalSize - optimizedSize
+                , percent = (saved / originalSize) * 100
+                , savedMsg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
+
+              msg = saved > 0 ? savedMsg : 'already optimized'
+              totalBytes += originalSize
+              totalSavedBytes += saved
+              totalFiles++
+
+              pliers.logger.info(chalk.green('✔ ') + filePath + chalk.gray(' (' + msg + ')'))
+
+              process.nextTick(next)
             }
-
-            savedMsg = saved > 0 ? savedMsg : 'already optimized'
-            totalBytes += originalSize
-            totalSavedBytes += saved
-
-            pliers.logger.info(chalk.green('✔ ') + filePath + chalk.gray(' (' + savedMsg + ')'))
           })
 
-          percent = (totalSavedBytes / totalBytes) * 100
-
-          msg =
-          [ 'Minified ' + totalFiles
-          , totalFiles === 1 ? 'image' : 'images'
-          , chalk.gray('(saved ' + prettyBytes(totalSavedBytes))
-          , '-'
-          , chalk.gray(percent.toFixed(1).replace(/\.0$/, '') + '%)')
-          ]
-
-          pliers.logger.info(msg.join(' '))
-
-          done()
-        })
+    }
 
   }
 

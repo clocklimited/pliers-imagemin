@@ -12,6 +12,8 @@ module.exports = function (pliers, images) {
 
   return function (done) {
 
+    if (!images.length) return done()
+
     var options =
         { interlaced: true
         , multipass: true
@@ -26,9 +28,7 @@ module.exports = function (pliers, images) {
         .use(Imagemin.optipng(options))
         .use(Imagemin.svgo(options))
         .run(function (err, files) {
-          if (err) {
-            return done(err)
-          }
+          if (err) return done(err)
 
           var totalBytes = 0
             , totalSavedBytes = 0
@@ -56,7 +56,7 @@ module.exports = function (pliers, images) {
             pliers.logger.info(chalk.green('✔ ') + filePath + chalk.gray(' (' + savedMsg + ')'))
           })
 
-          percent = totalBytes > 0 ? (totalSavedBytes / totalBytes) * 100 : 0
+          percent = (totalSavedBytes / totalBytes) * 100
 
           msg =
           [ 'Minified ' + totalFiles

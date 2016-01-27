@@ -1,9 +1,7 @@
-var async = require('async')
-  , path = require('path')
-  , chalk = require('chalk')
+var chalk = require('chalk')
   , fs = require('fs')
   , Imagemin = require('imagemin')
-  , os = require('os')
+  , path = require('path')
   , prettyBytes = require('pretty-bytes')
 
 module.exports = function (pliers, images) {
@@ -14,72 +12,64 @@ module.exports = function (pliers, images) {
 
   return function (done) {
 
-    var totalBytes = 0
-      , totalSavedBytes = 0
-      , totalFiles = 0
-      , options =
+    var options =
         { interlaced: true
         , multipass: true
         , optimizationLevel: 7
         , progressive: true
         }
-      , percent
-      , msg
 
-    async.eachLimit(images, os.cpus().length, optimize, function () {
-      percent = totalBytes > 0 ? (totalSavedBytes / totalBytes) * 100 : 0
+    new Imagemin()
+        .src(images)
+        .use(Imagemin.jpegtran(options))
+        .use(Imagemin.gifsicle(options))
+        .use(Imagemin.optipng(options))
+        .use(Imagemin.svgo(options))
+        .run(function (err, files) {
+          if (err) {
+            return done(err)
+          }
 
-      msg =
-        [ 'Minified ' + totalFiles
-        , totalFiles === 1 ? 'image' : 'images'
-        , chalk.gray('(saved ' + prettyBytes(totalSavedBytes))
-        , '-'
-        , chalk.gray(percent.toFixed(1).replace(/\.0$/, '') + '%)')
-        ]
+          var totalBytes = 0
+            , totalSavedBytes = 0
+            , totalFiles = files.length
+            , percent
+            , msg
 
-      pliers.logger.info(msg.join(' '))
+          files.forEach(function (file, index) {
+            var original = images[ index ]
+              , originalSize = fs.statSync(original).size
+              , filePath = path.relative(pliers.cwd, original)
+              , optimizedSize = file.contents.length
+              , saved = originalSize - optimizedSize
+              , percent = (saved / originalSize) * 100
+              , savedMsg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
 
-      done()
-    })
+            if (saved > 0) {
+              fs.writeFileSync(original, file.contents)
+            }
 
-    function optimize(image, next) {
-      var imagemin = new Imagemin()
-          .src(image)
-          .dest(path.dirname(image))
-          .use(Imagemin.jpegtran(options))
-          .use(Imagemin.gifsicle(options))
-          .use(Imagemin.optipng(options))
-          .use(Imagemin.svgo(options))
-        , originalSize = fs.statSync(image).size
-        , filePath = path.relative(pliers.cwd, image)
-        , msg
+            savedMsg = saved > 0 ? savedMsg : 'already optimized'
+            totalBytes += originalSize
+            totalSavedBytes += saved
 
-      imagemin.run(function (err, data) {
-        if (err) {
-          msg = err.message.replace(/(\r\n|\n|\r)/gm, ' ')
+            pliers.logger.info(chalk.green('✔ ') + filePath + chalk.gray(' (' + savedMsg + ')'))
+          })
 
-          pliers.logger.info(chalk.red('✘ ') + filePath + chalk.gray(' (' + msg + ')'))
+          percent = totalBytes > 0 ? (totalSavedBytes / totalBytes) * 100 : 0
 
-          return next()
-        } else {
-          var optimizedSize = data[ 0 ].contents.length
-            , saved = originalSize - optimizedSize
-            , percent = (saved / originalSize) * 100
-            , savedMsg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
+          msg =
+          [ 'Minified ' + totalFiles
+          , totalFiles === 1 ? 'image' : 'images'
+          , chalk.gray('(saved ' + prettyBytes(totalSavedBytes))
+          , '-'
+          , chalk.gray(percent.toFixed(1).replace(/\.0$/, '') + '%)')
+          ]
 
-          msg = saved > 0 ? savedMsg : 'already optimized'
-          totalBytes += originalSize
-          totalSavedBytes += saved
-          totalFiles++
+          pliers.logger.info(msg.join(' '))
 
-          pliers.logger.info(chalk.green('✔ ') + filePath + chalk.gray(' (' + msg + ')'))
-
-          process.nextTick(next)
-        }
-
-      })
-
-    }
+          done()
+        })
 
   }
 

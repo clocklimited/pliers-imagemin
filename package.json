@@ -28,10 +28,9 @@
     "node": ">=0.10.0"
   },
   "dependencies": {
-    "async": "^0.9.0",
-    "chalk": "^0.5.1",
-    "imagemin": "3.1.0",
-    "pretty-bytes": "^0.1.2"
+    "chalk": "^1.1.1",
+    "imagemin": "^3.2.2",
+    "pretty-bytes": "^3.0.0"
   },
   "devDependencies": {
     "directory-copy": "^0.1.0",

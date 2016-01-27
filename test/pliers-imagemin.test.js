@@ -158,7 +158,7 @@ describe('pliers imagemin', function () {
     })
   })
 
-  it('should skip an optimized image', function (done) {
+  it('should skip optimized image', function (done) {
     var pliers = createPliers()
       , path = join(tempDir, 'test-optimized.gif')
       , originalSize = fs.statSync(path).size
@@ -173,19 +173,19 @@ describe('pliers imagemin', function () {
     })
   })
 
-  it('should error on corrupt image', function (done) {
+  it('should skip corrupt image', function (done) {
     var pliers = createPliers()
       , path = join(tempDir, 'test-corrupt.jpg')
     pliers.filesets('images', path)
     pliers('imagemin', pliersImagemin(pliers, pliers.filesets.images))
     pliers.run('imagemin', function (error) {
-      assert(error)
+      assert(!error)
       done()
     })
   })
 
   it('should optimise sample images', function (done) {
-    var pliers = createPliers('debug')
+    var pliers = createPliers()
       , path = join(tempDir, 'ignore', '**/*.{gif,jpg,jpeg,png,svg}')
     pliers.filesets('images', path)
     pliers('imagemin', pliersImagemin(pliers, pliers.filesets.images))

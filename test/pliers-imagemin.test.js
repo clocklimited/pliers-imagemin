@@ -1,6 +1,5 @@
 var join = require('path').join
   , assert = require('assert')
-  , createPliers = require('pliers').bind(null, { logLevel: 'fatal' })
   , pliersImagemin = require('..')
   , rmdir = require('rimraf')
   , mkdir = require('mkdirp')
@@ -26,6 +25,10 @@ describe('pliers imagemin', function () {
     rmdir(tempDir, done)
   })
 
+  function createPliers(logLevel) {
+    return require('pliers').bind(null, { logLevel: logLevel || 'fatal' })()
+  }
+
   it('should error if pliers argument is missing', function (done) {
     var pliers = createPliers()
     assert.throws(function () {
@@ -40,6 +43,17 @@ describe('pliers imagemin', function () {
       pliers('imagemin', pliersImagemin(pliers, null))
     }, /No images argument supplied./)
     done()
+  })
+
+  it('should skip non existent image', function (done) {
+    var pliers = createPliers()
+      , path = join(tempDir, 'test.nonexistent')
+    pliers.filesets('images', path)
+    pliers('imagemin', pliersImagemin(pliers, pliers.filesets.images))
+    pliers.run('imagemin', function (error) {
+      assert(!error)
+      done()
+    })
   })
 
   it('should optimize a GIF', function (done) {
@@ -73,7 +87,6 @@ describe('pliers imagemin', function () {
   })
 
   it('should optimize a PNG', function (done) {
-    this.timeout(50000)
     var pliers = createPliers()
       , path = join(tempDir, 'test.png')
       , originalSize = fs.statSync(path).size
@@ -110,7 +123,7 @@ describe('pliers imagemin', function () {
 
   it('should optimize multiple images', function (done) {
     var pliers = createPliers()
-      , path = join(tempDir, '*.{gif,png,jpg,svg}')
+      , path = join(tempDir, 'test.{gif,png,jpg,svg}')
       , originalSize = 0
       , optimizedSize = 0
     pliers.filesets('images', path)
@@ -145,9 +158,9 @@ describe('pliers imagemin', function () {
     })
   })
 
-  it('should ignore a corrupt image', function (done) {
+  it('should skip an optimized image', function (done) {
     var pliers = createPliers()
-      , path = join(tempDir, 'test-corrupt.jpg')
+      , path = join(tempDir, 'test-optimized.gif')
       , originalSize = fs.statSync(path).size
       , optimizedSize
     pliers.filesets('images', path)
@@ -155,7 +168,29 @@ describe('pliers imagemin', function () {
     pliers.run('imagemin', function (error) {
       assert(!error)
       optimizedSize = fs.statSync(path).size
-      assert.equal(originalSize, optimizedSize)
+      assert.equal(optimizedSize === originalSize, true)
+      done()
+    })
+  })
+
+  it('should error on corrupt image', function (done) {
+    var pliers = createPliers()
+      , path = join(tempDir, 'test-corrupt.jpg')
+    pliers.filesets('images', path)
+    pliers('imagemin', pliersImagemin(pliers, pliers.filesets.images))
+    pliers.run('imagemin', function (error) {
+      assert(error)
+      done()
+    })
+  })
+
+  it('should optimise sample images', function (done) {
+    var pliers = createPliers('debug')
+      , path = join(tempDir, 'ignore', '**/*.{gif,jpg,jpeg,png,svg}')
+    pliers.filesets('images', path)
+    pliers('imagemin', pliersImagemin(pliers, pliers.filesets.images))
+    pliers.run('imagemin', function (error) {
+      assert(!error)
       done()
     })
   })

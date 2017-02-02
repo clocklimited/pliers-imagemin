@@ -42,6 +42,12 @@ module.exports = function (pliers, images) {
       done()
     })
 
+    function log(icon, filePath, msg) {
+
+      pliers.logger.info(icon + ' ' + filePath + chalk.gray(' (' + msg + ')'))
+
+    }
+
     function optimize(image, next) {
 
       var originalSize = fs.statSync(image).size
@@ -59,7 +65,7 @@ module.exports = function (pliers, images) {
             if (err) {
               msg = err.message.replace(/(\r\n|\n|\r)/gm, ' ')
 
-              pliers.logger.info(chalk.red('✘ ') + filePath + chalk.gray(' (' + msg + ')'))
+              log(chalk.red('✘'), filePath, msg)
 
               return next()
             } else {
@@ -67,14 +73,20 @@ module.exports = function (pliers, images) {
                 , optimizedSize = file.contents.length
                 , saved = originalSize - optimizedSize
                 , percent = (saved / originalSize) * 100
-                , savedMsg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
+                , icon = chalk.cyan('•')
 
-              msg = saved > 0 ? savedMsg : 'already optimized'
+              msg = 'already optimized'
+
+              if (saved > 0) {
+                icon = chalk.green('✔')
+                msg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
+              }
+
               totalBytes += originalSize
               totalSavedBytes += saved
               totalFiles++
 
-              pliers.logger.info(chalk.green('✔ ') + filePath + chalk.gray(' (' + msg + ')'))
+              log(icon, filePath, msg)
 
               process.nextTick(next)
             }

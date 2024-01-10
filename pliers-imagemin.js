@@ -68,32 +68,38 @@ module.exports = function (pliers, images) {
               log(chalk.red('✘'), filePath, msg)
 
               return next()
-            } else {
-              var file = files[ 0 ]
-                , optimizedSize = file.contents.length
-                , saved = originalSize - optimizedSize
-                , percent = (saved / originalSize) * 100
-                , icon = chalk.cyan('•')
-
-              msg = 'already optimized'
-
-              if (saved > 0) {
-                icon = chalk.green('✔')
-                msg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
-              }
-
-              totalBytes += originalSize
-              totalSavedBytes += saved
-              totalFiles++
-
-              log(icon, filePath, msg)
-
-              process.nextTick(next)
             }
+            var file = files[0]
+
+            if (!file) {
+              msg = 'no files returned, it may be a corrupt image'
+
+              log(chalk.red('✘'), filePath, msg)
+
+              // Skip corrupt image
+              return
+            }
+
+            var optimizedSize = file.contents.length
+              , saved = originalSize - optimizedSize
+              , percent = (saved / originalSize) * 100
+              , icon = chalk.cyan('•')
+
+            msg = 'already optimized'
+
+            if (saved > 0) {
+              icon = chalk.green('✔')
+              msg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
+            }
+
+            totalBytes += originalSize
+            totalSavedBytes += saved
+            totalFiles++
+
+            log(icon, filePath, msg)
+
+            process.nextTick(next)
           })
-
     }
-
   }
-
 }

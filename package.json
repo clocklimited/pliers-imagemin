@@ -1,5 +1,5 @@
 {
-  "name": "pliers-imagemin",
+  "name": "@clocklimited/pliers-imagemin",
   "version": "3.0.2",
   "description": "Minify GIFs, JPGs, PNGs, and SVGs.",
   "author": "Ben Edwards <hello@benedfit.com>",
@@ -11,7 +11,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git@github.com:pliersjs/pliers-imagemin"
+    "url": "git@github.com:clocklimited/pliers-imagemin"
   },
   "publishConfig": {
     "registry": "http://registry.npmjs.org"

@@ -29,8 +29,12 @@
   },
   "dependencies": {
     "async": "^1.5.2",
-    "chalk": "^1.1.1",
-    "imagemin": "^4.0.0",
+    "chalk": "^2.0.0",
+    "imagemin": "^6.0.0",
+    "imagemin-gifsicle": "^7.0.0",
+    "imagemin-jpegtran": "^7.0.0",
+    "imagemin-optipng": "^8.0.0",
+    "imagemin-svgo": "^9.0.0",
     "pretty-bytes": "^3.0.0"
   },
   "devDependencies": {

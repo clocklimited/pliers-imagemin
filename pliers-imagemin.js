@@ -1,7 +1,11 @@
 var async = require('async')
   , chalk = require('chalk')
   , fs = require('fs')
-  , Imagemin = require('imagemin')
+  , imagemin = require('imagemin')
+  , gifsicle = require('imagemin-gifsicle')
+  , jpegtran = require('imagemin-jpegtran')
+  , optipng = require('imagemin-optipng')
+  , svgo = require('imagemin-svgo')
   , os = require('os')
   , path = require('path')
   , prettyBytes = require('pretty-bytes')
@@ -49,51 +53,45 @@ module.exports = function (pliers, images) {
     }
 
     function optimize(image, next) {
-
       var originalSize = fs.statSync(image).size
-        , filePath = path.relative(pliers.cwd, image)
-        , msg
+          , filePath = path.relative(pliers.cwd, image)
+          , msg
 
-      new Imagemin()
-          .src(image)
-          .dest(path.dirname(image))
-          .use(Imagemin.jpegtran(options))
-          .use(Imagemin.gifsicle(options))
-          .use(Imagemin.optipng(options))
-          .use(Imagemin.svgo(options))
-          .run(function (err, files) {
-            if (err) {
-              msg = err.message.replace(/(\r\n|\n|\r)/gm, ' ')
+        imagemin([ image ], path.dirname(image), {
+          plugins: [
+            jpegtran(options)
+            , gifsicle(options)
+            , optipng(options)
+            , svgo(options)
+          ]
+        }).then(function (files) {
+          var file = files[0]
+            , optimizedSize = file.contents.length
+            , saved = originalSize - optimizedSize
+            , percent = (saved / originalSize) * 100
+            , icon = chalk.cyan('•')
 
-              log(chalk.red('✘'), filePath, msg)
+          msg = 'already optimized'
 
-              return next()
-            } else {
-              var file = files[ 0 ]
-                , optimizedSize = file.contents.length
-                , saved = originalSize - optimizedSize
-                , percent = (saved / originalSize) * 100
-                , icon = chalk.cyan('•')
+          if (saved > 0) {
+            icon = chalk.green('✔')
+            msg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
+          }
 
-              msg = 'already optimized'
+          totalBytes += originalSize
+          totalSavedBytes += saved
+          totalFiles++
 
-              if (saved > 0) {
-                icon = chalk.green('✔')
-                msg = 'saved ' + prettyBytes(saved) + ' - ' + percent.toFixed(1).replace(/\.0$/, '') + '%'
-              }
+          log(icon, filePath, msg)
 
-              totalBytes += originalSize
-              totalSavedBytes += saved
-              totalFiles++
+          process.nextTick(next)
+        }).catch(function (err) {
+          msg = err.message.replace(/(\r\n|\n|\r)/gm, ' ')
 
-              log(icon, filePath, msg)
+          log(chalk.red('✘'), filePath, msg)
 
-              process.nextTick(next)
-            }
-          })
-
+          return next()
+        })
     }
-
   }
-
 }
